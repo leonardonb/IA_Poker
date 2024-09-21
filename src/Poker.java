@@ -3,7 +3,7 @@ import java.util.Arrays;
 public class Poker {
 
 	static final int saldoInicial = 1000;
-	static final long duracaoDoJogoEmSegundos = 4000;
+	static final long duracaoDoJogoEmSegundos = 60;
 	static final long miliSegundosDeIntervalo = 5000;
 	static final int apostaMinima = 10;
 	static final boolean verbose = true;
@@ -11,7 +11,7 @@ public class Poker {
 	public static void main(String[] args) throws InterruptedException {
 
 		Controlador[] jogadores = new Controlador[7];
-		jogadores[0] = new Controlador(new AgenteRandomico(), saldoInicial, "Rando 1");
+		jogadores[0] = new Controlador(new AgenteProbabilistico(), saldoInicial, "Probabilistico 1");
 		jogadores[1] = new Controlador(new AgenteConstante(), saldoInicial, "Const 2");
 		jogadores[2] = new Controlador(new AgenteConstanteLento(miliSegundosDeIntervalo * 1000), saldoInicial,
 				"Lento 3");
@@ -57,7 +57,7 @@ public class Poker {
 			Arrays.fill(apostas, 0);
 			int apostaMaisAlta = 0;
 			for (int i = 0; i < jogadores.length; i++) {
-				// pega a aposta, deve ser no mínino a aposta mínima e no máximo o saldo
+				// pega a aposta, deve ser no mï¿½nino a aposta mï¿½nima e no mï¿½ximo o saldo
 				apostas[i] = Math.min(Math.max(apostaMinima, jogadores[i].aposta), jogadores[i].saldo);
 				// atualiza o saldo
 				jogadores[i].saldo -= apostas[i];
@@ -84,7 +84,7 @@ public class Poker {
 			// avalia os jogos
 			int pontosMaisAltos = -1;
 			for (int i = 0; i < jogadores.length; i++) {
-				// só avalia quem paga para ver
+				// sï¿½ avalia quem paga para ver
 				if (jogadores[i].pagaPraVer || (apostas[i] == apostaMaisAlta)) {
 					int p = pontosJogos[i];
 					if (p > pontosMaisAltos)
@@ -103,7 +103,7 @@ public class Poker {
 					pontosJogos[i] = -1;
 				}
 			}
-			// calcula a quantidade de capeões que vão dividir o prêmio
+			// calcula a quantidade de capeï¿½es que vï¿½o dividir o prï¿½mio
 			int divisor = 0;
 			for (int i = 0; i < pontosJogos.length; i++) {
 				if (pontosJogos[i] == pontosMaisAltos)
@@ -114,7 +114,7 @@ public class Poker {
 			for (int i = 0; i < apostas.length; i++) {
 				pote += apostas[i];
 			}
-			// paga aos campeões
+			// paga aos campeï¿½es
 			int premio = pote / divisor;
 			for (int i = 0; i < apostas.length; i++) {
 				if (pontosJogos[i] == pontosMaisAltos)
