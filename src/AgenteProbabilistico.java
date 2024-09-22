@@ -1,72 +1,174 @@
-public class AgenteProbabilistico implements Agente {
-    long tempoEspera;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class AgenteProbabilistico extends Avaliacao implements Agente {
+
+    private Carta[] jogo;
 
     public AgenteProbabilistico() {
-      //  this.tempoEspera = tempoDeEspera;
     }
 
-    // Método para avaliar a força da mão (exemplo simplificado)
-    private double avaliarForcaDaMao(Carta[] jogo) {
-        // Aqui você faria a lógica para avaliar a mão de poker
-        // Por exemplo: um par, dois pares, trinca, straight, flush, etc.
-        // O retorno seria um valor entre 0.0 (mão muito fraca) e 1.0 (mão muito forte)
+    private int avaliarForcaDaMao(Carta[] jogo) {
+        this.jogo = jogo;
 
-        // Exemplo simplificado: se houver um par, a força é 0.3, se houver uma trinca, a força é 0.6, etc.
-        if (temPar(jogo)) return 0.3;
-        if (temTrinca(jogo)) return 0.6;
-        if (temStraight(jogo)) return 0.8;
-        if (temFlush(jogo)) return 0.9;
-
-        return 0.1; // mão muito fraca
+        if (temRoyalFlush(jogo)) return 800;
+        if (temStraightFlush(jogo)) return 700;
+        if (temQuadra(jogo)) return 500;
+        if (temFullHouse(jogo)) return 400;
+        if (temFlush(jogo)) return 300;
+        if (temSequencia(jogo)) return 200;
+        if (temTrinca(jogo)) return 170;
+        if (temDoisPares(jogo)) return 120;
+        int temPar = temPar(jogo);
+        if (temPar > 0) return temPar;
+        return analiseCartaAlta(jogo);
     }
 
     @Override
     public int getPrimeiraAposta(Carta[] jogo) {
-        try {
-            Thread.sleep(this.tempoEspera);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        // Avaliar a força da mão
-        double forca = avaliarForcaDaMao(jogo);
-
-        // Basear a aposta na força da mão
-        int aposta = (int) (forca * 100); // Exemplo: quanto maior a força, maior a aposta
-        return Math.max(aposta, 10); // Aposta mínima de 10
+        int aposta = avaliarForcaDaMao(jogo);
+        return Math.max(aposta, 10);
     }
 
     @Override
     public boolean getSegundaAposta(int apostaMaisAlta) {
-        try {
-            Thread.sleep(this.tempoEspera);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        int minhaAposta = avaliarForcaDaMao(this.jogo);
+        if (minhaAposta == 10) return false;
+        return minhaAposta*2 > apostaMaisAlta;
+    }
+
+    // TODAS CARTAS > 9, SEQUENCIA E MESMO NAIPE
+    private boolean temRoyalFlush(Carta[] jogo) {
+//        testar Royal Flush
+//        jogo = new Carta[] {
+//                new Carta(10, 'O'),
+//                new Carta(12, 'O'),
+//                new Carta(13, 'O'),
+//                new Carta(11, 'O'),
+//                new Carta(14, 'O')
+//        };
+//        boolean flushDescricao = true;
+
+        Avaliacao avaliacao = Avaliacao.avaliaJogo(jogo);
+        boolean flushDescricao = avaliacao.descricao.contains("Seqüência de Naipe");
+        if (flushDescricao && temSequenciaEspecifica(jogo, 10, 14)){
+            System.out.println("-------------------------- ROYAL FLUSH --------------------------");
         }
-
-        // Lógica de decisão para continuar apostando ou não
-        // Exemplo: se a aposta mais alta for muito alta e a força da mão for baixa, desista
-        return apostaMaisAlta < 50; // Exemplo simplificado
+        return flushDescricao;
     }
 
-    // Exemplos de métodos para avaliar mãos (implementação seria mais detalhada)
-    private boolean temPar(Carta[] jogo) {
-        // Lógica para determinar se há um par
-        return false; // Exemplo placeholder
+    // 5 CARTAS DO MESMO NAIPE E SEQUENCIA
+    private boolean temStraightFlush(Carta[] jogo) {
+        Avaliacao avaliacao = Avaliacao.avaliaJogo(jogo);
+        return avaliacao.descricao.contains("Seqüência de Naipe");
     }
 
-    private boolean temTrinca(Carta[] jogo) {
-        // Lógica para determinar se há uma trinca
-        return false; // Exemplo placeholder
+    // 4 CARTAS DO MESMO VALOR
+    private boolean temQuadra(Carta[] jogo) {
+        Avaliacao avaliacao = Avaliacao.avaliaJogo(jogo);
+        return avaliacao.descricao.contains("Quadra de");
     }
 
-    private boolean temStraight(Carta[] jogo) {
-        // Lógica para determinar se há um straight
-        return false; // Exemplo placeholder
+
+    // TRINCA E UM PAR
+    private boolean temFullHouse(Carta[] jogo) {
+        Avaliacao avaliacao = Avaliacao.avaliaJogo(jogo);
+        return avaliacao.descricao.contains("Dupla e Trinca com");
     }
 
+    // 5 CARTAS DO MESMO NAIPE
     private boolean temFlush(Carta[] jogo) {
-        // Lógica para determinar se há um flush
-        return false; // Exemplo placeholder
+        Avaliacao avaliacao = Avaliacao.avaliaJogo(jogo);
+        return avaliacao.descricao.contains("Mesmo Naipe");
     }
+
+
+    // 5 CARTAS EM SEQUENCIA
+    private boolean temSequencia(Carta[] jogo) {
+        Avaliacao avaliacao = Avaliacao.avaliaJogo(jogo);
+        return avaliacao.descricao.contains("Seqüência");
+    }
+
+    // 3 CARTAS DO MESMO VALOR
+    private boolean temTrinca(Carta[] jogo) {
+        Avaliacao avaliacao = Avaliacao.avaliaJogo(jogo);
+        return avaliacao.descricao.contains("Trinca de ");
+    }
+
+    // 2 PARES SEPARADOS
+    private boolean temDoisPares(Carta[] jogo) {
+        Avaliacao avaliacao = Avaliacao.avaliaJogo(jogo);
+        return avaliacao.descricao.contains("Dois pares com");
+    }
+
+    // DUAS CARTAS DO MESMO VALOR
+    private int temPar(Carta[] jogo) {
+        Avaliacao avaliacao = Avaliacao.avaliaJogo(jogo);
+        if (avaliacao.descricao.contains("Par de")){
+            Pattern pattern = Pattern.compile("Par de (\\d+)");
+            Matcher matcher = pattern.matcher(avaliacao.descricao);
+            if (matcher.find()) {
+                int par = Integer.parseInt(matcher.group(1));
+                switch (par) {
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                        return 15;
+                    case 6:
+                        return 16;
+                    case 7:
+                        return 17;
+                    case 8:
+                        return 18;
+                    case 9:
+                        return 20;
+                    case 10:
+                        return 22;
+                    case 11:
+                        return 25;
+                    case 12:
+                        return 30;
+                    case 13:
+                        return 35;
+                    case 14:
+                        return 40;
+                }
+            }
+        }
+        return -1;
+    }
+
+    private int analiseCartaAlta(Carta[] jogo) {
+        Avaliacao avaliacao = Avaliacao.avaliaJogo(jogo);
+        if (avaliacao.descricao.contains("nada")){
+            switch (avaliacao.pontos) {
+                case 11:
+                    return 11;
+                case 12:
+                    return 12;
+                case 13:
+                    return 13;
+                case 14:
+                    return 14;
+            }
+        }
+        return 10;
+    }
+
+    private boolean temSequenciaEspecifica(Carta[] jogo, int inicio, int fim) {
+        boolean temSequencia = false;
+        for (int i = inicio; i < fim; i++) {
+            temSequencia = false;
+            for (Carta carta: jogo) {
+                if (carta.valor == i){
+                    temSequencia = true;
+                    break;
+                }
+            }
+            if (!temSequencia) return false;
+        }
+        return temSequencia;
+    }
+
 }

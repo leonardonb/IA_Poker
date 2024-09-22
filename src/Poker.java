@@ -3,8 +3,8 @@ import java.util.Arrays;
 public class Poker {
 
 	static final int saldoInicial = 1000;
-	static final long duracaoDoJogoEmSegundos = 60;
-	static final long miliSegundosDeIntervalo = 5000;
+	static final long duracaoDoJogoEmSegundos = 800;
+	static final long miliSegundosDeIntervalo = 1000;
 	static final int apostaMinima = 10;
 	static final boolean verbose = true;
 
