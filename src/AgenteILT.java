@@ -1,11 +1,11 @@
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AgenteProbabilistico extends Avaliacao implements Agente {
+public class AgenteILT extends Avaliacao implements Agente {
 
     private Carta[] jogo;
 
-    public AgenteProbabilistico() {
+    public AgenteILT() {
     }
 
     private int avaliarForcaDaMao(Carta[] jogo) {

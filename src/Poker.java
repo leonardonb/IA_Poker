@@ -11,7 +11,7 @@ public class Poker {
 	public static void main(String[] args) throws InterruptedException {
 
 		Controlador[] jogadores = new Controlador[7];
-		jogadores[0] = new Controlador(new AgenteProbabilistico(), saldoInicial, "Probabilistico 1");
+		jogadores[0] = new Controlador(new AgenteILT(), saldoInicial, "Agente ILT 1");
 		jogadores[1] = new Controlador(new AgenteConstante(), saldoInicial, "Const 2");
 		jogadores[2] = new Controlador(new AgenteConstanteLento(miliSegundosDeIntervalo * 1000), saldoInicial,
 				"Lento 3");
